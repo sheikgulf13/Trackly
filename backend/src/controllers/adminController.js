@@ -61,8 +61,11 @@ exports.getAnalytics = async (req, res) => {
         $group: {
           _id: "$assignedTo",
           total: { $sum: 1 },
+          inProgress: {
+            $sum: { $cond: [{ $eq: ["$status", "In Progress"] }, 1, 0] },
+          },
           completed: {
-            $sum: { $cond: [{ $eq: ["$status", "completed"] }, 1, 0] },
+            $sum: { $cond: [{ $eq: ["$status", "Completed"] }, 1, 0] },
           },
           overdue: {
             $sum: {
@@ -70,7 +73,7 @@ exports.getAnalytics = async (req, res) => {
                 {
                   $and: [
                     { $lt: ["$dueDate", new Date()] },
-                    { $ne: ["$status", "completed"] },
+                    { $ne: ["$status", "Completed"] },
                   ],
                 },
                 1,
@@ -94,6 +97,7 @@ exports.getAnalytics = async (req, res) => {
             }
           : { id: entry._id, name: "Unknown", email: "N/A" },
         total: entry.total,
+        inProgress: entry.inProgress,
         completed: entry.completed,
         overdue: entry.overdue,
         completionRate: entry.total
@@ -108,6 +112,7 @@ exports.getAnalytics = async (req, res) => {
         stats.push({
           user: { id: user._id, name: user.name, email: user.email },
           total: 0,
+          inProgress: 0,
           completed: 0,
           overdue: 0,
           completionRate: "0%",
@@ -128,6 +133,50 @@ exports.getAnalytics = async (req, res) => {
       message: "Failed to retrieve analytics",
       error: err.message,
     });
+  }
+};
+
+exports.getAllTasks = async (req, res) => {
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    const {
+      status,
+      priority,
+      dueDateFrom,
+      dueDateTo,
+      page = 1,
+      limit = 10,
+    } = req.query;
+
+    const filters = {};
+
+    if (status) filters.status = status;
+    if (priority) filters.priority = priority;
+
+    if (dueDateFrom || dueDateTo) {
+      filters.dueDate = {};
+      if (dueDateFrom) filters.dueDate.$gte = new Date(dueDateFrom);
+      if (dueDateTo) filters.dueDate.$lte = new Date(dueDateTo);
+    }
+
+    const tasks = await Task.find(filters)
+      .sort({ createdAt: -1 })
+      //.limit(parseInt(limit))
+      .populate("createdBy", "name email")
+      .populate("assignedTo", "name email");
+
+    //const total = await Task.countDocuments(filters);
+
+    res.status(200).json({
+      success: true,
+      tasks,
+    });
+  } catch (error) {
+    console.log("get all tasks error", error);
+    res.status(500).json({ message: "Server Error!" });
   }
 };
 
@@ -269,11 +318,11 @@ exports.createTask = async (req, res) => {
       description,
       dueDate,
       assignedTo: assignedTo || null,
-      createdBy: req.user._id,
+      createdBy: req.user.id,
     });
 
     await AuditLog({
-      userId: req.user._id,
+      userId: req.user.id,
       action: "create_task",
       taskId: task._id,
       details: {
@@ -303,6 +352,38 @@ exports.createTask = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Internal server error.",
+      error: error.message,
+    });
+  }
+};
+
+exports.getAllUsers = async (req, res) => {
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    const users = await User.find(
+      { role: "User" },
+      { name: 1, email: 1 }
+    ).lean();
+
+    const formattedUsers = users.map((u) => ({
+      id: u._id,
+      name: u.name,
+      email: u.email,
+    }));
+
+    res.status(200).json({
+      success: true,
+      totalUsers: formattedUsers.length,
+      users: formattedUsers,
+    });
+  } catch (error) {
+    console.error("[Admin] getAllUsers Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch users",
       error: error.message,
     });
   }

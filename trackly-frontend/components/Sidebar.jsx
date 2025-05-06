@@ -26,19 +26,37 @@ const Sidebar = ({ role }) => {
   };
 
   return (
-    <aside className="sidebar">
-      <div className="menu">
-        {navItems[role]?.map(({ label, href }) => (
-          <Link
-            key={href}
-            href={href}
-            className={pathname === href ? 'active' : ''}
-          >
-            {label}
-          </Link>
-        ))}
+    <aside className="w-64 h-screen flex flex-col bg-white border-r border-gray-200">
+      <div className="p-6 flex-1">
+        <h2 className="text-xl font-bold text-purple-800 mb-8">
+          {role === 'user' ? 'User Panel' : 'Admin Panel'}
+        </h2>
+        
+        <nav className="space-y-2">
+          {navItems[role]?.map(({ label, href }) => (
+            <Link
+              key={href}
+              href={href}
+              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200 ${
+                pathname === href
+                  ? 'bg-purple-100 text-purple-800'
+                  : 'text-gray-600 hover:bg-purple-50 hover:text-purple-700'
+              }`}
+            >
+              {label}
+            </Link>
+          ))}
+        </nav>
       </div>
-      <button className="logout" onClick={logout}>Logout</button>
+
+      <div className="p-6">
+        <button
+          onClick={logout}
+          className="w-full flex items-center justify-center px-4 py-3 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors duration-200"
+        >
+          Logout
+        </button>
+      </div>
     </aside>
   );
 };

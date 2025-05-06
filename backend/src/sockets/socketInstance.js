@@ -1,4 +1,3 @@
-
 const { Server } = require("socket.io");
 const { registerUser, deregisterSocket } = require("./socketRegistry");
 
@@ -7,8 +6,10 @@ let io;
 function initSocket(server) {
   io = new Server(server, {
     cors: {
-      origin: "*", 
+      origin: "http://localhost:3000",
       methods: ["GET", "POST"],
+      credentials: true,
+      allowedHeaders: ["Authorization"]
     },
   });
 
@@ -24,5 +25,14 @@ function initSocket(server) {
   return io;
 }
 
-module.exports = io;
-module.exports = initSocket;
+function getIO() {
+  if (!io) {
+    throw new Error("Socket.io not initialized. Call initSocket(server) first.");
+  }
+  return io;
+}
+
+module.exports = {
+  initSocket,
+  getIO,
+};

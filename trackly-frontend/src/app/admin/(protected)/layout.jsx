@@ -4,9 +4,9 @@ import AuthGuard from '../../../../components/AuthGuard';
 export default function AdminLayout({ children }) {
   return (
     <AuthGuard allowedRoles={['Admin']}>
-      <div style={{ display: 'flex' }}>
+      <div className="h-screen flex overflow-hidden bg-gray-50">
         <Sidebar role="admin" />
-        <main style={{ flexGrow: 1, padding: '20px' }}>
+        <main className="flex-1">
           {children}
         </main>
       </div>

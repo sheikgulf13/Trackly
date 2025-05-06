@@ -5,10 +5,12 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
+const http = require("http");
 
 const authRoutes = require("./src/routes/authRoutes");
 const taskRoutes = require("./src/routes/taskRoutes");
 const adminRoutes = require("./src/routes/adminRoutes");
+const { initSocket } = require("./src/sockets/socketInstance");
 
 const app = express();
 
@@ -18,6 +20,7 @@ app.use(helmet());
  
 app.use(
   cors({
+    origin: 'http://localhost:3000',
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -39,6 +42,10 @@ app.use((err, req, res, next) => {
     message: err.message || 'Internal Server Error',
   });
 });
+
+const server = http.createServer(app);
+
+initSocket(server);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
