@@ -13,7 +13,7 @@ exports.protect = async (req, res, next) => {
     const token = authHeader.split(" ")[1];
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    if (!decoded || typeof decoded !== object) {
+    if (!decoded || typeof decoded !== 'object') {
       return res.status(403).json({ message: "Invalid token" });
     }
 
@@ -25,16 +25,16 @@ exports.protect = async (req, res, next) => {
 
     return next();
   } catch (error) {
-    if (err.name === "TokenExpiredError") {
+    if (error.name === "TokenExpiredError") {
       return res.status(401).json({ message: "Token expired" });
     }
 
-    if (err.name === "JsonWebTokenError") {
+    if (error.name === "JsonWebTokenError") {
       return res.status(403).json({ message: "Invalid token" });
     }
 
     // Unknown error
-    console.error("JWT Auth Error:", err);
+    console.error("JWT Auth Error:", error);
     return res.status(500).json({ message: "Authentication failed" });
   }
 };

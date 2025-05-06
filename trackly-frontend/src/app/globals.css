@@ -24,3 +24,35 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.sidebar {
+  width: 220px;
+  background: #121212;
+  color: #fff;
+  height: 100vh;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.sidebar .menu a {
+  display: block;
+  padding: 0.75rem 0;
+  color: white;
+  text-decoration: none;
+}
+
+.sidebar .menu a.active {
+  background: #222;
+  font-weight: bold;
+  border-left: 4px solid #00f2ff;
+}
+
+.sidebar .logout {
+  background: #ff3b3b;
+  color: white;
+  border: none;
+  padding: 0.75rem;
+  cursor: pointer;
+}
