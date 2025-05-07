@@ -2,7 +2,7 @@
 
 import Sidebar from '../../../../components/Sidebar';
 import AuthGuard from '../../../../components/AuthGuard';
-import { SocketProvider } from '../../../../src/contexts/SocketContext';
+import { SocketProvider } from '../../../../contexts/SocketContext';
 import { Toaster } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { memo } from 'react';
