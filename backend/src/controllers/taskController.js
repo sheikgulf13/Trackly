@@ -3,6 +3,7 @@ const Task = require("../models/Task");
 const User = require("../models/User");
 const { emitToUser } = require("../sockets/socketEmitter");
 const AuditLog = require("../models/AuditLog");
+const sendEmail = require("../utils/mail");
 
 exports.createTask = async (req, res) => {
   try {
@@ -57,6 +58,12 @@ exports.createTask = async (req, res) => {
         title: task.title,
         assignedBy: req.user.id,
       });
+
+      await sendEmail(
+        assignedTo,
+        "New Task Assigned",
+        `You have been assigned a new task: ${task.title}`
+      );
     }
 
     res.status(200).json({ success: true, task });
@@ -163,6 +170,8 @@ exports.deleteTask = async (req, res) => {
       return res.status(404).json({ message: "Assignee cannot delete a task" });
     }
 
+    const assignedTo = task.assignedTo;
+
     const deleteTask = await Task.findOneAndDelete({ _id: req.params.id });
 
     if (!deleteTask)
@@ -181,6 +190,21 @@ exports.deleteTask = async (req, res) => {
         deletedAt: new Date(),
       },
     });
+
+    if (assignedTo) {
+      emitToUser(assignedTo, "task:deleted", {
+        taskId: task._id,
+        title: task.title,
+        deletedBy: req.user.name,
+        timestamp: new Date(),
+      });
+
+      await sendEmail(
+        assignedTo,
+        "New Task Assigned",
+        `You have been assigned a new task: ${task.title}`
+      );
+    }
 
     res.status(200).json({ success: true, message: "Task deleted!" });
   } catch (error) {
@@ -505,6 +529,12 @@ exports.assignTask = async (req, res) => {
       title: task.title,
       assignedBy: userId,
     });
+
+    await sendEmail(
+      assignedTo,
+      "New Task Assigned",
+      `You have been assigned a new task: ${task.title}`
+    );
 
     return res.status(200).json({
       success: true,

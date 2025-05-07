@@ -3,6 +3,7 @@ const AuditLog = require("../models/AuditLog");
 const User = require("../models/User");
 const Task = require("../models/Task");
 const { emitToUser } = require("../sockets/socketEmitter");
+const sendEmail = require("../utils/mail");
 
 exports.getAuditLogs = async (req, res) => {
   try {
@@ -213,11 +214,17 @@ exports.assignTask = async (req, res) => {
       },
     });
 
-    emitToUser(assignedTo.toString(), "task:assigned", {
+    await emitToUser(assignedTo.toString(), "task:assigned", {
       taskId: task._id,
       title: task.title,
       assignedBy: req.user.id,
     });
+
+    await sendEmail(
+      assignedTo,
+      "New Task Assigned",
+      `You have been assigned a new task: ${task.title}`
+    );
 
     return res.status(200).json({
       success: true,
@@ -278,6 +285,12 @@ exports.deleteTask = async (req, res) => {
         deletedBy: req.user.name,
         timestamp: new Date(),
       });
+
+      await sendEmail(
+        assignedTo,
+        "New Task Assigned",
+        `You have been assigned a new task: ${task.title}`
+      );
     }
 
     return res.status(200).json({
@@ -339,6 +352,12 @@ exports.createTask = async (req, res) => {
         dueDate,
         timestamp: new Date(),
       });
+
+      await sendEmail(
+        assignedTo,
+        "New Task Assigned",
+        `You have been assigned a new task: ${task.title}`
+      );
     }
 
     return res.status(201).json({
