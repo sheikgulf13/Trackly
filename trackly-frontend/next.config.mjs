@@ -1,6 +1,6 @@
 const nextConfig = {
     env: {
-      URL: "http://localhost:5000/api",
+      URL: "https://trackly-backend-cwo5.onrender.com",
     },
   };
   
