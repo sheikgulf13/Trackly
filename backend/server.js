@@ -6,6 +6,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
 const http = require("http");
+const compression = require("compression");
 
 const authRoutes = require("./src/routes/authRoutes");
 const taskRoutes = require("./src/routes/taskRoutes");
@@ -14,14 +15,11 @@ const { initSocket } = require("./src/sockets/socketInstance");
 
 const app = express();
 
-connectDB();
+//connectDB();
 
 app.use(helmet());
  
-const allowedOrigins = [
-  'http://localhost:3000',
-  'https://trackly-git-master-sheik-gulfaans-projects.vercel.app'
-];
+const allowedOrigins = [process.env.CLIENT_ORIGIN, 'http://localhost:3000'];
 
 app.use(
   cors({
@@ -38,9 +36,17 @@ app.use(
   })
 );
 
+if (process.env.NODE_ENV === "production") {
+  app.use(compression());
+}
+
 app.use(express.json());
 app.use(cookieParser());
-app.use(morgan("dev"));
+
+if (process.env.NODE_ENV !== "production") {
+  app.use(morgan("dev"));
+}
+
 
 app.use("/api/auth", authRoutes);
 app.use("/api/tasks", taskRoutes);
@@ -54,9 +60,24 @@ app.use((err, req, res, next) => {
   });
 });
 
-const server = http.createServer(app);
+//const server = http.createServer(app);
 
-initSocket(server);
+//initSocket(server);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+//app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+
+const startServer = async () => {
+  try {
+    await connectDB();
+    const server = http.createServer(app);
+    initSocket(server);
+    server.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+  } catch (err) {
+    console.error("❌ Failed to start server:", err.message);
+    process.exit(1);
+  }
+};
+
+startServer();
+
