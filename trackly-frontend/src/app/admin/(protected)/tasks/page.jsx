@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import axios from "axios";
 import dayjs from "dayjs";
 import { format } from "date-fns";
 import clsx from "clsx";
@@ -9,6 +8,7 @@ import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import { X, Search, Plus, Trash2, UserPlus } from "lucide-react";
 import { toast, Toaster } from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
+import api from "../../../../../lib/api";
 
 const page = () => {
   const [tasks, setTasks] = useState([]);
@@ -49,8 +49,8 @@ const page = () => {
 
   const fetchTasks = async () => {
     try {
-      const res = await axios.get(
-        "http://localhost:5000/api/admin/get_all_tasks",
+      const res = await api.get(
+        "/admin/get_all_tasks",
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -63,8 +63,8 @@ const page = () => {
 
   const fetchUsers = async () => {
     try {
-      const res = await axios.get(
-        "http://localhost:5000/api/admin/get_all_users",
+      const res = await api.get(
+        "/admin/get_all_users",
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -126,8 +126,8 @@ const page = () => {
     }
 
     try {
-      const res = await axios.post(
-        "http://localhost:5000/api/admin/create_task",
+      const res = await api.post(
+        "/admin/create_task",
         form,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -159,8 +159,8 @@ const page = () => {
 
   const assignTask = async () => {
     try {
-      await axios.put(
-        "http://localhost:5000/api/admin/assign_task",
+      await api.put(
+        "/admin/assign_task",
         { taskId: assignModal.taskId, assignedTo: assignModal.userId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -174,8 +174,8 @@ const page = () => {
 
   const deleteTask = async (taskId) => {
     try {
-      await axios.delete(
-        `http://localhost:5000/api/admin/delete_task/${taskId}`,
+      await api.delete(
+        `/admin/delete_task/${taskId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setDeleteModal({ isOpen: false, taskId: null });

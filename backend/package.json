@@ -8,6 +8,8 @@
   "main": "server.js",
   "scripts": {
     "node": "nodemon server.js",
+    "start": "node server.js",   
+    "install": "npm install",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {

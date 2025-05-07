@@ -1,7 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import axios from 'axios'
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Chart as ChartJS,
@@ -16,6 +15,7 @@ import {
 } from 'chart.js'
 import { Pie, Line, Bar } from 'react-chartjs-2'
 import { Search, Calendar, Filter, CheckCircle, Clock, AlertCircle } from 'lucide-react'
+import api from '../../../../../lib/api'
 
 ChartJS.register(
   ArcElement,
@@ -49,26 +49,26 @@ const page = () => {
         const token = localStorage.getItem('accessToken')
         const query = new URLSearchParams(filters)
 
-        const createdRes = await axios.get(
-          `http://localhost:5000/api/tasks/created_tasks?${query.toString()}`,
+        const createdRes = await api.get(
+          `/tasks/created_tasks?${query.toString()}`,
           { headers: { Authorization: `Bearer ${token}` } }
         )
 
        
-        const assignedRes = await axios.get(
-          `http://localhost:5000/api/tasks/assigned_tasks?${query.toString()}`,
+        const assignedRes = await api.get(
+          `/tasks/assigned_tasks?${query.toString()}`,
           { headers: { Authorization: `Bearer ${token}` } }
         )
 
      
-        const overdueRes = await axios.get(
-          `http://localhost:5000/api/tasks/overdue_tasks?`,
+        const overdueRes = await api.get(
+          `/tasks/overdue_tasks?`,
           { headers: { Authorization: `Bearer ${token}` } }
         )
 
       
-        const statsRes = await axios.get(
-          `http://localhost:5000/api/tasks/get_all_my_tasks?${query.toString()}`,
+        const statsRes = await api.get(
+          `/tasks/get_all_my_tasks?${query.toString()}`,
           { headers: { Authorization: `Bearer ${token}` } }
         )
 

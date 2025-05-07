@@ -2,8 +2,8 @@
 
 import React from "react";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { format } from "date-fns";
+import api from "../../../../../lib/api";
 
 const page = () => {
     const [logs, setLogs] = useState([]);
@@ -25,7 +25,7 @@ const page = () => {
         if (fromDate) params.from = fromDate;
         if (toDate) params.to = toDate;
   
-        const res = await axios.get('http://localhost:5000/api/admin/get_audit_logs', {
+        const res = await api.get('/admin/get_audit_logs', {
           headers: {
             Authorization: `Bearer ${token}`,
           },

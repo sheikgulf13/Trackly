@@ -1,7 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import axios from 'axios'
+import { useEffect, useState } from 'react';
 import {
   Chart as ChartJS,
   ArcElement,
@@ -16,6 +15,7 @@ import {
 import { Pie, Line, Bar } from 'react-chartjs-2'
 import { toast } from 'react-hot-toast'
 import { motion, AnimatePresence } from 'framer-motion'
+import api from '../../../../../lib/api'
 
 ChartJS.register(
   ArcElement,
@@ -37,7 +37,7 @@ const page = () => {
         try {
           const token = localStorage.getItem('accessToken')
   
-          const res = await axios.get('http://localhost:5000/api/admin/get_analytics', {
+          const res = await api.get('/admin/get_analytics', {
             headers: {
               Authorization: `Bearer ${token}`,
             },

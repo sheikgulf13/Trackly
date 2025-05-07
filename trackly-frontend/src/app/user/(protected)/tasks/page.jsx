@@ -1,7 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import axios from 'axios'
+import { useEffect, useState } from 'react';
 import dayjs from 'dayjs'
 import { format } from 'date-fns'
 import clsx from 'clsx'
@@ -9,6 +8,7 @@ import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import { X, Search, Plus, Trash2, UserPlus, Pencil, Calendar, Filter } from "lucide-react";
 import { toast } from 'react-hot-toast'
 import { motion, AnimatePresence } from 'framer-motion'
+import api from '../../../../../lib/api'
 
 const page = () => {
   const [tasks, setTasks] = useState([])
@@ -53,7 +53,7 @@ const page = () => {
 
   const fetchTasks = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/tasks/get_all_my_tasks', {
+      const res = await api.get('/tasks/get_all_my_tasks', {
         headers: { Authorization: `Bearer ${token}` },
       })
       setTasks(res.data.tasks)
@@ -64,7 +64,7 @@ const page = () => {
 
   const fetchUsers = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/tasks/get_all_users', {
+      const res = await api.get('/tasks/get_all_users', {
         headers: { Authorization: `Bearer ${token}` },
       })
       console.log('user', res)
@@ -126,8 +126,8 @@ const page = () => {
     console.log('form', form)
 
     try {
-      const res = await axios.post(
-        "http://localhost:5000/api/tasks/create_task",
+      const res = await api.post(
+        "/tasks/create_task",
         form,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -182,8 +182,8 @@ const page = () => {
         updateData.priority = editModal.form.priority;
       }
 
-      const response = await axios.put(
-        `http://localhost:5000/api/tasks/update_task/${editModal.task._id}`,
+      const response = await api.put(
+        `/tasks/update_task/${editModal.task._id}`,
         updateData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -200,8 +200,8 @@ const page = () => {
 
   const handleAssignTask = async () => {
     try {
-      await axios.put(
-        'http://localhost:5000/api/tasks/assign_task',
+      await api.put(
+        '/tasks/assign_task',
         { taskId: assignModal.taskId, assignedTo: assignModal.userId },
         { headers: { Authorization: `Bearer ${token}` } }
       )
@@ -215,8 +215,8 @@ const page = () => {
 
   const deleteTask = async (taskId) => {
     try {
-      await axios.delete(
-        `http://localhost:5000/api/tasks/delete_task/${taskId}`,
+      await api.delete(
+        `/tasks/delete_task/${taskId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       )
       setDeleteModal({ isOpen: false, taskId: null });
