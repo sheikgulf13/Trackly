@@ -490,7 +490,7 @@ exports.assignTask = async (req, res) => {
     task.assignedTo = assignedTo;
     await task.save();
 
-    await AuditLog({
+    await AuditLog.create({
       userId: req.user._id,
       action: "assign_task",
       taskId: task._id,

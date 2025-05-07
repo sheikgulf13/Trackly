@@ -15,6 +15,7 @@ import {
 } from 'chart.js'
 import { Pie, Line, Bar } from 'react-chartjs-2'
 import { toast } from 'react-hot-toast'
+import { motion, AnimatePresence } from 'framer-motion'
 
 ChartJS.register(
   ArcElement,
@@ -56,7 +57,11 @@ const page = () => {
   
     if (loading) return (
       <div className="flex items-center justify-center h-full">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-600"></div>
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          className="w-12 h-12 border-4 border-purple-200 border-t-purple-600 rounded-full"
+        />
       </div>
     )
   
@@ -72,10 +77,10 @@ const page = () => {
           label: 'Task Status Overview',
           data: [completedTasks, totalTasks - completedTasks - inProgressTasks - overdueTasks, inProgressTasks, overdueTasks],
           backgroundColor: [
-            'rgba(52, 211, 153, 0.8)',  // Soft green for Completed
-            'rgba(251, 191, 36, 0.8)',  // Soft amber for Pending
-            'rgba(147, 51, 234, 0.8)',  // Soft purple for In Progress
-            'rgba(239, 68, 68, 0.8)',   // Soft red for Overdue
+            'rgba(52, 211, 153, 0.8)',  
+            'rgba(251, 191, 36, 0.8)',  
+            'rgba(147, 51, 234, 0.8)',  
+            'rgba(239, 68, 68, 0.8)',  
           ],
           borderColor: [
             'rgb(52, 211, 153)',
@@ -95,13 +100,13 @@ const page = () => {
           label: 'Total Tasks by User',
           data: stats.map((s) => s.total),
           backgroundColor: [
-            'rgba(147, 51, 234, 0.8)',  // Purple
-            'rgba(99, 102, 241, 0.8)',  // Indigo
-            'rgba(236, 72, 153, 0.8)',  // Pink
-            'rgba(251, 191, 36, 0.8)',  // Amber
-            'rgba(52, 211, 153, 0.8)',  // Green
-            'rgba(59, 130, 246, 0.8)',  // Blue
-            'rgba(239, 68, 68, 0.8)',   // Red
+            'rgba(147, 51, 234, 0.8)', 
+            'rgba(99, 102, 241, 0.8)',  
+            'rgba(236, 72, 153, 0.8)',  
+            'rgba(251, 191, 36, 0.8)',  
+            'rgba(52, 211, 153, 0.8)',  
+            'rgba(59, 130, 246, 0.8)', 
+            'rgba(239, 68, 68, 0.8)',   
           ],
           borderColor: [
             'rgb(147, 51, 234)',
@@ -123,28 +128,28 @@ const page = () => {
         {
           label: 'Completed',
           data: stats.map((s) => s.completed),
-          backgroundColor: 'rgba(52, 211, 153, 0.8)',  // Soft green
+          backgroundColor: 'rgba(52, 211, 153, 0.8)',  
           borderColor: 'rgb(52, 211, 153)',
           borderWidth: 1,
         },
         {
           label: 'In Progress',
           data: stats.map((s) => s.inProgress),
-          backgroundColor: 'rgba(147, 51, 234, 0.8)',  // Soft purple
+          backgroundColor: 'rgba(147, 51, 234, 0.8)',  
           borderColor: 'rgb(147, 51, 234)',
           borderWidth: 1,
         },
         {
           label: 'Pending',
           data: stats.map((s) => s.total - s.completed - s.inProgress - s.overdue),
-          backgroundColor: 'rgba(251, 191, 36, 0.8)',  // Soft amber
+          backgroundColor: 'rgba(251, 191, 36, 0.8)',
           borderColor: 'rgb(251, 191, 36)',
           borderWidth: 1,
         },
         {
           label: 'Overdue',
           data: stats.map((s) => s.overdue),
-          backgroundColor: 'rgba(239, 68, 68, 0.8)',  // Soft red
+          backgroundColor: 'rgba(239, 68, 68, 0.8)',  
           borderColor: 'rgb(239, 68, 68)',
           borderWidth: 1,
         },
@@ -157,8 +162,8 @@ const page = () => {
         {
           label: 'Completion Rate (%)',
           data: stats.map((s) => parseFloat(s.completionRate)),
-          borderColor: 'rgb(147, 51, 234)',  // Purple line
-          backgroundColor: 'rgba(147, 51, 234, 0.1)',  // Very light purple fill
+          borderColor: 'rgb(147, 51, 234)',  
+          backgroundColor: 'rgba(147, 51, 234, 0.1)',  
           fill: true,
           tension: 0.4,
           borderWidth: 2,
@@ -177,7 +182,7 @@ const page = () => {
         {
           label: 'Overdue Tasks',
           data: stats.map((s) => s.overdue),
-          backgroundColor: 'rgba(239, 68, 68, 0.8)',  // Soft red
+          backgroundColor: 'rgba(239, 68, 68, 0.8)',  
           borderColor: 'rgb(239, 68, 68)',
           borderWidth: 1,
         },
@@ -185,34 +190,66 @@ const page = () => {
     }
   
     return (
-      <div className="h-full overflow-y-auto bg-white">
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="h-full overflow-y-auto bg-white"
+      >
         <div className="p-8">
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold text-gray-800">Dashboard Overview</h1>
-            <p className="text-gray-600">Welcome to your admin dashboard</p>
-          </div>
+          <motion.div 
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="mb-8"
+          >
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent">
+              Dashboard Overview
+            </h1>
+            <p className="text-gray-600 mt-2">Welcome to your admin dashboard</p>
+          </motion.div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-gray-50 rounded-xl shadow-sm p-6 border-l-4 border-green-500">
-              <h3 className="text-gray-500 text-sm font-medium">Total Tasks</h3>
-              <p className="text-3xl font-bold text-gray-800">{totalTasks}</p>
-            </div>
-            <div className="bg-gray-50 rounded-xl shadow-sm p-6 border-l-4 border-blue-500">
-              <h3 className="text-gray-500 text-sm font-medium">Completed Tasks</h3>
-              <p className="text-3xl font-bold text-gray-800">{completedTasks}</p>
-            </div>
-            <div className="bg-gray-50 rounded-xl shadow-sm p-6 border-l-4 border-red-500">
-              <h3 className="text-gray-500 text-sm font-medium">Overdue Tasks</h3>
-              <p className="text-3xl font-bold text-gray-800">{overdueTasks}</p>
-            </div>
-          </div>
+          <motion.div 
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
+          >
+            {[
+              { title: 'Total Tasks', value: totalTasks, color: 'green' },
+              { title: 'Completed Tasks', value: completedTasks, color: 'blue' },
+              { title: 'Overdue Tasks', value: overdueTasks, color: 'red' }
+            ].map((stat, index) => (
+              <motion.div
+                key={stat.title}
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
+                whileHover={{ scale: 1.02 }}
+                className={`bg-white rounded-xl shadow-lg p-6 border-l-4 border-${stat.color}-500 hover:shadow-xl transition-all duration-300`}
+              >
+                <div>
+                  <h3 className="text-gray-500 text-sm font-medium">{stat.title}</h3>
+                  <p className="text-3xl font-bold text-gray-800 mt-2">{stat.value}</p>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
     
           {/* Charts Grid */}
-          <div className="space-y-8">
-            {/* Row 1: Two Pie Charts */}
+          <motion.div 
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="space-y-8"
+          >
+            {/* Row 1: Two Charts */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="bg-gray-50 rounded-xl shadow-sm p-6">
+              <motion.div
+                whileHover={{ scale: 1.01 }}
+                className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300"
+              >
                 <h2 className="text-lg font-semibold text-gray-800 mb-4">Task Status Distribution</h2>
                 <div className="h-80">
                   <Pie 
@@ -234,8 +271,12 @@ const page = () => {
                     }}
                   />
                 </div>
-              </div>
-              <div className="bg-gray-50 rounded-xl shadow-sm p-6">
+              </motion.div>
+
+              <motion.div
+                whileHover={{ scale: 1.01 }}
+                className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300"
+              >
                 <h2 className="text-lg font-semibold text-gray-800 mb-4">Task Status by User</h2>
                 <div className="h-80">
                   <Bar 
@@ -272,11 +313,14 @@ const page = () => {
                     }}
                   />
                 </div>
-              </div>
+              </motion.div>
             </div>
     
             {/* Row 2: Line Chart */}
-            <div className="bg-gray-50 rounded-xl shadow-sm p-6 w-full">
+            <motion.div
+              whileHover={{ scale: 1.01 }}
+              className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 w-full"
+            >
               <h2 className="text-lg font-semibold text-gray-800 mb-4">Completion Rate per User</h2>
               <div className="h-80 w-full">
                 <Line 
@@ -312,10 +356,13 @@ const page = () => {
                   }}
                 />
               </div>
-            </div>
+            </motion.div>
     
             {/* Row 3: Bar Chart */}
-            <div className="bg-gray-50 rounded-xl shadow-sm p-6 w-full">
+            <motion.div
+              whileHover={{ scale: 1.01 }}
+              className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 w-full"
+            >
               <h2 className="text-lg font-semibold text-gray-800 mb-4">Overdue Tasks per User</h2>
               <div className="h-80 w-full">
                 <Bar 
@@ -350,10 +397,10 @@ const page = () => {
                   }}
                 />
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
     )
   }
 

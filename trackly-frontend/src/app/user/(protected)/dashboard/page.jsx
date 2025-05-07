@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import axios from 'axios'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   Chart as ChartJS,
   ArcElement,
@@ -14,7 +15,7 @@ import {
   PointElement,
 } from 'chart.js'
 import { Pie, Line, Bar } from 'react-chartjs-2'
-import { Search } from 'lucide-react'
+import { Search, Calendar, Filter, CheckCircle, Clock, AlertCircle } from 'lucide-react'
 
 ChartJS.register(
   ArcElement,
@@ -41,32 +42,31 @@ const page = () => {
     search: ''
   })
 
-  // Fetch tasks and statistics
+
   useEffect(() => {
     const fetchTasks = async () => {
       try {
         const token = localStorage.getItem('accessToken')
         const query = new URLSearchParams(filters)
 
-        // Fetch created tasks
         const createdRes = await axios.get(
           `http://localhost:5000/api/tasks/created_tasks?${query.toString()}`,
           { headers: { Authorization: `Bearer ${token}` } }
         )
 
-        // Fetch assigned tasks
+       
         const assignedRes = await axios.get(
           `http://localhost:5000/api/tasks/assigned_tasks?${query.toString()}`,
           { headers: { Authorization: `Bearer ${token}` } }
         )
 
-        // Fetch overdue tasks
+     
         const overdueRes = await axios.get(
           `http://localhost:5000/api/tasks/overdue_tasks?`,
           { headers: { Authorization: `Bearer ${token}` } }
         )
 
-        // Fetch stats
+      
         const statsRes = await axios.get(
           `http://localhost:5000/api/tasks/get_all_my_tasks?${query.toString()}`,
           { headers: { Authorization: `Bearer ${token}` } }
@@ -87,12 +87,16 @@ const page = () => {
   }, [filters])
 
   if (loading) return (
-    <div className="flex items-center justify-center h-full">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-600"></div>
+    <div className="flex items-center justify-center h-screen">
+      <motion.div
+        animate={{ rotate: 360 }}
+        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+        className="rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-600"
+      />
     </div>
   )
 
-  // Pie chart data for task status
+ 
   const pieData = {
     labels: ['Completed', 'Pending', 'In Progress', 'Overdue'],
     datasets: [
@@ -100,10 +104,10 @@ const page = () => {
         label: 'Tasks',
         data: [stats?.completedCount, stats?.pendingCount, stats?.inProgressCount, stats?.overdueCount],
         backgroundColor: [
-          'rgba(52, 211, 153, 0.8)',  // Soft green for Completed
-          'rgba(251, 191, 36, 0.8)',  // Soft amber for Pending
-          'rgba(147, 51, 234, 0.8)',  // Soft purple for In Progress
-          'rgba(239, 68, 68, 0.8)',   // Soft red for Overdue
+          'rgba(52, 211, 153, 0.8)',  
+          'rgba(251, 191, 36, 0.8)', 
+          'rgba(147, 51, 234, 0.8)', 
+          'rgba(239, 68, 68, 0.8)',  
         ],
         borderColor: [
           'rgb(52, 211, 153)',
@@ -116,7 +120,7 @@ const page = () => {
     ],
   }
 
-  // Bar chart data for task priority distribution
+
   const barData = {
     labels: ['High', 'Medium', 'Low'],
     datasets: [
@@ -128,9 +132,9 @@ const page = () => {
           stats?.priorityCounts?.Low || 0,
         ],
         backgroundColor: [
-          'rgba(239, 68, 68, 0.8)',   // Soft red for High
-          'rgba(251, 191, 36, 0.8)',  // Soft amber for Medium
-          'rgba(52, 211, 153, 0.8)',  // Soft green for Low
+          'rgba(239, 68, 68, 0.8)',  
+          'rgba(251, 191, 36, 0.8)', 
+          'rgba(52, 211, 153, 0.8)',  
         ],
         borderColor: [
           'rgb(239, 68, 68)',
@@ -142,15 +146,15 @@ const page = () => {
     ],
   }
 
-  // Line chart data for task completion over time
+
   const lineData = {
     labels: stats?.history.map(h => h.date),
     datasets: [
       {
         label: 'Tasks Completed',
         data: stats?.history.map(h => h.completed),
-        borderColor: 'rgb(147, 51, 234)',  // Purple line
-        backgroundColor: 'rgba(147, 51, 234, 0.1)',  // Very light purple fill
+        borderColor: 'rgb(147, 51, 234)',  
+        backgroundColor: 'rgba(147, 51, 234, 0.1)',  
         fill: true,
         tension: 0.4,
         borderWidth: 2,
@@ -207,80 +211,149 @@ const page = () => {
   }
 
   const TaskList = ({ tasks, title, total }) => (
-    <div className="flex-1">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="flex-1"
+    >
       <div className="mb-4 px-2">
         <div className="flex items-center gap-2">
           <h2 className="text-md font-semibold text-gray-800">{title}</h2>
-          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">Total: {total}</span>
+          <motion.span 
+            whileHover={{ scale: 1.05 }}
+            className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full"
+          >
+            Total: {total}
+          </motion.span>
         </div>
       </div>
-      <div className="bg-gray-50 rounded-xl shadow-sm overflow-hidden h-[500px] border border-gray-200 hover:shadow-md transition-shadow duration-200">
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="bg-gray-50 rounded-xl shadow-sm overflow-hidden h-[500px] border border-gray-200 hover:shadow-md transition-all duration-200"
+      >
         <div className="divide-y divide-gray-200 h-full overflow-y-auto">
-          {tasks.map((task) => (
-            <div key={task._id} className="p-4 hover:bg-white transition-colors border-b border-gray-200 last:border-b-0 group">
-              <div className="flex justify-between items-start gap-2">
-                <div className="min-w-0 flex-1">
-                  <h3 className="text-base font-medium text-gray-900 truncate group-hover:text-gray-800 transition-colors">{task.title}</h3>
-                  <p className="mt-1 text-sm text-gray-500 line-clamp-2">{task.description}</p>
+          <AnimatePresence>
+            {tasks.map((task, index) => (
+              <motion.div
+                key={task._id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
+                whileHover={{ scale: 1.01, backgroundColor: "white" }}
+                className="p-4 transition-colors border-b border-gray-200 last:border-b-0 group"
+              >
+                <div className="flex justify-between items-start gap-2">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-base font-medium text-gray-900 truncate group-hover:text-gray-800 transition-colors">
+                      {task.title}
+                    </h3>
+                    <p className="mt-1 text-sm text-gray-500 line-clamp-2">{task.description}</p>
+                  </div>
+                  <motion.span
+                    whileHover={{ scale: 1.05 }}
+                    className={`shrink-0 inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${getStatusColor(task.status)}`}
+                  >
+                    {task.status}
+                  </motion.span>
                 </div>
-                <span className={`shrink-0 inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${getStatusColor(task.status)}`}>
-                  {task.status}
-                </span>
-              </div>
-              <div className="mt-2 flex items-center gap-2">
-                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${getPriorityColor(task.priority)}`}>
-                  {task.priority}
-                </span>
-                <span className="text-xs text-gray-500 flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  Due: {new Date(task.dueDate).toLocaleDateString()}
-                </span>
-              </div>
-            </div>
-          ))}
+                <div className="mt-2 flex items-center gap-2">
+                  <motion.span
+                    whileHover={{ scale: 1.05 }}
+                    className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${getPriorityColor(task.priority)}`}
+                  >
+                    {task.priority}
+                  </motion.span>
+                  <span className="text-xs text-gray-500 flex items-center gap-1">
+                    <Calendar className="h-3.5 w-3.5" />
+                    Due: {new Date(task.dueDate).toLocaleDateString()}
+                  </span>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
           {tasks.length === 0 && (
-            <div className="p-4 text-center text-gray-500 border-b border-gray-200">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+              className="p-4 text-center text-gray-500 border-b border-gray-200"
+            >
+              <motion.div
+                initial={{ rotate: -10 }}
+                animate={{ rotate: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <AlertCircle className="h-8 w-8 mx-auto text-gray-400" />
+              </motion.div>
               <p className="mt-2">No tasks found</p>
-            </div>
+            </motion.div>
           )}
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   )
 
   return (
-    <div className="h-full overflow-y-auto bg-white">
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="min-h-screen bg-white"
+    >
       <div className="p-8">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-800">Task Dashboard</h1>
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mb-8"
+        >
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent">
+            Task Dashboard
+          </h1>
           <p className="text-gray-600">Track and manage your tasks</p>
-        </div>
+        </motion.div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-gray-50 rounded-xl shadow-sm p-6 border-l-4 border-green-500">
-            <h3 className="text-gray-500 text-sm font-medium">Completed Tasks</h3>
-            <p className="text-3xl font-bold text-gray-800">{stats?.completedCount || 0}</p>
-          </div>
-          <div className="bg-gray-50 rounded-xl shadow-sm p-6 border-l-4 border-yellow-500">
-            <h3 className="text-gray-500 text-sm font-medium">Pending Tasks</h3>
-            <p className="text-3xl font-bold text-gray-800">{stats?.pendingCount || 0}</p>
-          </div>
-          <div className="bg-gray-50 rounded-xl shadow-sm p-6 border-l-4 border-red-500">
-            <h3 className="text-gray-500 text-sm font-medium">Overdue Tasks</h3>
-            <p className="text-3xl font-bold text-gray-800">{stats?.overdueCount || 0}</p>
-          </div>
+          {[
+            { title: "Completed Tasks", count: stats?.completedCount || 0, color: "green" },
+            { title: "Pending Tasks", count: stats?.pendingCount || 0, color: "yellow" },
+            { title: "Overdue Tasks", count: stats?.overdueCount || 0, color: "red" }
+          ].map((stat, index) => (
+            <motion.div
+              key={stat.title}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              whileHover={{ scale: 1.02 }}
+              className={`bg-gray-50 rounded-xl shadow-sm p-6 border-l-4 border-${stat.color}-500`}
+            >
+              <div>
+                <h3 className="text-gray-500 text-sm font-medium">{stat.title}</h3>
+                <p className="text-3xl font-bold text-gray-800 mt-1">{stat.count}</p>
+              </div>
+            </motion.div>
+          ))}
         </div>
 
         {/* Filters Section */}
-        <div className="bg-gray-50 rounded-xl p-6 mb-8">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="bg-gray-50 rounded-xl p-6 mb-8"
+        >
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-            <div className="relative">
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="relative"
+            >
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
               <input
                 type="text"
@@ -289,135 +362,133 @@ const page = () => {
                 onChange={(e) => setFilters({ ...filters, search: e.target.value })}
                 className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-800 placeholder-gray-500"
               />
-            </div>
-            <select
-              value={filters.status}
-              onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-              className="border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-800"
-            >
-              <option value="">All Status</option>
-              <option value="Pending">Pending</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Completed">Completed</option>
-              <option value="Overdue">Overdue</option>
-            </select>
-            <select
-              value={filters.priority}
-              onChange={(e) => setFilters({ ...filters, priority: e.target.value })}
-              className="border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-800"
-            >
-              <option value="">All Priority</option>
-              <option value="High">High</option>
-              <option value="Medium">Medium</option>
-              <option value="Low">Low</option>
-            </select>
-            <input
-              type="date"
-              value={filters.dueDateFrom}
-              onChange={(e) => setFilters({ ...filters, dueDateFrom: e.target.value })}
-              className="border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-800 placeholder-gray-500"
-            />
-            <input
-              type="date"
-              value={filters.dueDateTo}
-              onChange={(e) => setFilters({ ...filters, dueDateTo: e.target.value })}
-              className="border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-800 placeholder-gray-500"
-            />
-          </div>
-        </div>
+            </motion.div>
 
-         {/* Task Lists */}
-         <div className="my-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div className="space-y-6">
-            <TaskList 
-              tasks={filteredCreatedTasks} 
-              title="Tasks Created by You" 
-              total={createdTasks.length} 
-            />
+            {[
+              { label: "Status", value: filters.status, setter: (value) => setFilters({ ...filters, status: value }), options: [
+                { value: "", label: "All Status" },
+                { value: "Pending", label: "Pending" },
+                { value: "In Progress", label: "In Progress" },
+                { value: "Completed", label: "Completed" },
+                { value: "Overdue", label: "Overdue" }
+              ]},
+              { label: "Priority", value: filters.priority, setter: (value) => setFilters({ ...filters, priority: value }), options: [
+                { value: "", label: "All Priority" },
+                { value: "High", label: "High" },
+                { value: "Medium", label: "Medium" },
+                { value: "Low", label: "Low" }
+              ]}
+            ].map((filter, index) => (
+              <motion.select
+                key={filter.label}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
+                value={filter.value}
+                onChange={(e) => filter.setter(e.target.value)}
+                className="border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-800"
+              >
+                {filter.options.map(option => (
+                  <option key={option.value} value={option.value} className="text-gray-900">
+                    {option.label}
+                  </option>
+                ))}
+              </motion.select>
+            ))}
+
+            {[
+              { label: "From", value: filters.dueDateFrom, setter: (value) => setFilters({ ...filters, dueDateFrom: value }) },
+              { label: "To", value: filters.dueDateTo, setter: (value) => setFilters({ ...filters, dueDateTo: value }) }
+            ].map((date, index) => (
+              <motion.div
+                key={date.label}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 + (index + 2) * 0.1 }}
+                className="relative"
+              >
+                <input
+                  type="date"
+                  value={date.value}
+                  onChange={(e) => date.setter(e.target.value)}
+                  className="w-full border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-800"
+                />
+                <span className="absolute -top-2 left-3 px-1 text-xs text-gray-500 bg-white">
+                  {date.label} Date
+                </span>
+              </motion.div>
+            ))}
           </div>
-          <div className="space-y-6">
-            <TaskList 
-              tasks={filteredAssignedTasks} 
-              title="Tasks Assigned to You" 
-              total={assignedTasks.length} 
-            />
-          </div>
-          <div className="space-y-6">
-            <TaskList 
-              tasks={filteredOverdueTasks} 
-              title="Overdue Tasks" 
-              total={overdueTasks.length} 
-            />
-          </div>
+        </motion.div>
+
+        {/* Task Lists */}
+        <div className="my-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <TaskList 
+            tasks={filteredCreatedTasks} 
+            title="Tasks Created by You" 
+            total={createdTasks.length} 
+          />
+          <TaskList 
+            tasks={filteredAssignedTasks} 
+            title="Tasks Assigned to You" 
+            total={assignedTasks.length} 
+          />
+          <TaskList 
+            tasks={filteredOverdueTasks} 
+            title="Overdue Tasks" 
+            total={overdueTasks.length} 
+          />
         </div>
 
         {/* Charts Grid */}
         <div className="space-y-8">
           {/* Row 1: Two Charts */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-gray-50 rounded-xl shadow-sm p-6">
-              <h2 className="text-lg font-semibold text-gray-800 mb-4">Task Status Distribution</h2>
-              <div className="h-80">
-                <Pie 
-                  data={pieData} 
-                  options={{
-                    plugins: {
-                      legend: {
-                        position: 'bottom',
-                        labels: {
-                          padding: 20,
-                          font: {
-                            size: 12
+            {[
+              { title: "Task Status Distribution", data: pieData, component: Pie },
+              { title: "Task Priority Breakdown", data: barData, component: Bar }
+            ].map((chart, index) => (
+              <motion.div
+                key={chart.title}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                whileHover={{ scale: 1.01 }}
+                className="bg-gray-50 rounded-xl shadow-sm p-6"
+              >
+                <h2 className="text-lg font-semibold text-gray-800 mb-4">{chart.title}</h2>
+                <div className="h-80">
+                  <chart.component 
+                    data={chart.data} 
+                    options={{
+                      plugins: {
+                        legend: {
+                          position: 'bottom',
+                          labels: {
+                            padding: 20,
+                            font: {
+                              size: 12
+                            }
                           }
-                        }
-                      }
-                    },
-                    maintainAspectRatio: false,
-                    responsive: true
-                  }}
-                />
-              </div>
-            </div>
-            <div className="bg-gray-50 rounded-xl shadow-sm p-6">
-              <h2 className="text-lg font-semibold text-gray-800 mb-4">Task Priority Breakdown</h2>
-              <div className="h-80">
-                <Bar 
-                  data={barData} 
-                  options={{
-                    plugins: {
-                      legend: {
-                        position: 'bottom',
-                        labels: {
-                          padding: 20,
-                          font: {
-                            size: 12
-                          }
-                        }
-                      }
-                    },
-                    scales: {
-                      y: {
-                        beginAtZero: true,
-                        grid: {
-                          color: 'rgba(0, 0, 0, 0.1)',
                         }
                       },
-                      x: {
-                        grid: {
-                          display: false
-                        }
-                      }
-                    },
-                    maintainAspectRatio: false,
-                    responsive: true
-                  }}
-                />
-              </div>
-            </div>
+                      maintainAspectRatio: false,
+                      responsive: true
+                    }}
+                  />
+                </div>
+              </motion.div>
+            ))}
           </div>
 
           {/* Row 2: Line Chart */}
-          <div className="bg-gray-50 rounded-xl shadow-sm p-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            whileHover={{ scale: 1.01 }}
+            className="bg-gray-50 rounded-xl shadow-sm p-6"
+          >
             <h2 className="text-lg font-semibold text-gray-800 mb-4">Task Completion Over Time</h2>
             <div className="h-80">
               <Line 
@@ -452,12 +523,10 @@ const page = () => {
                 }}
               />
             </div>
-          </div>
+          </motion.div>
         </div>
-
-       
       </div>
-    </div>
+    </motion.div>
   )
 }
 

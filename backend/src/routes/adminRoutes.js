@@ -10,6 +10,6 @@ router.get('/get_all_tasks', protect, allowRoles('Admin'), adminController.getAl
 router.get('/get_all_users', protect, allowRoles('Admin'), adminController.getAllUsers);
 router.put('/assign_task', protect, allowRoles('Admin'), adminController.assignTask);
 router.post('/create_task', protect, allowRoles('Admin'), adminController.createTask);
-router.delete('/delete_task', protect, allowRoles('Admin'), adminController.deleteTask);
+router.delete('/delete_task/:taskId', protect, allowRoles('Admin'), adminController.deleteTask);
 
 module.exports = router;

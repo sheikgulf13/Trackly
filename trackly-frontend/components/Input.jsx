@@ -1,4 +1,8 @@
-const Input = ({
+'use client'
+
+import { memo } from 'react'
+
+const Input = memo(function Input({
   label,
   name,
   type = "text",
@@ -6,7 +10,7 @@ const Input = ({
   value,
   onChange,
   className = "",
-}) => {
+}) {
   return (
     <div>
       <label
@@ -26,6 +30,6 @@ const Input = ({
       />
     </div>
   );
-};
+});
 
 export default Input;

@@ -6,7 +6,7 @@ const { emitToUser } = require("../sockets/socketEmitter");
 
 exports.getAuditLogs = async (req, res) => {
   try {
-    const { page = 1, limit = 20, action, userId, from, to } = req.query;
+    const { action, userId, from, to } = req.query;
 
     const query = {};
 
@@ -21,8 +21,6 @@ exports.getAuditLogs = async (req, res) => {
 
     const logs = await AuditLog.find(query)
       .sort({ timestamp: -1 })
-      //.skip((page - 1) * limit)
-      //.limit(parseInt(limit))
       .populate([
         { path: "userId", select: "name email role" },
         { path: "taskId", select: "title status assignedTo" },
@@ -33,12 +31,8 @@ exports.getAuditLogs = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      metadata: {
-        //page: Number(page),
-        //limit: Number(limit),
-        total,
-        //totalPages: Math.ceil(total / limit),
-      },
+
+      total,
       data: logs,
     });
   } catch (err) {
@@ -209,7 +203,7 @@ exports.assignTask = async (req, res) => {
     task.assignedTo = assignedTo;
     await task.save();
 
-    await AuditLog({
+    await AuditLog.create({
       userId: req.user._id,
       action: "assign_task",
       taskId: task._id,
@@ -259,9 +253,14 @@ exports.deleteTask = async (req, res) => {
 
     const assignedTo = task.assignedTo;
 
-    await Task.findByIdAndDelete(taskId);
+    const deleteTask = await Task.findOneAndDelete({ _id: taskId });
 
-    await AuditLog({
+    if (!deleteTask)
+      return res
+        .status(404)
+        .json({ message: "Error deleting task, try again!" });
+
+    await AuditLog.create({
       userId: req.user._id,
       action: "delete_task",
       taskId,
@@ -321,7 +320,7 @@ exports.createTask = async (req, res) => {
       createdBy: req.user.id,
     });
 
-    await AuditLog({
+    await AuditLog.create({
       userId: req.user.id,
       action: "create_task",
       taskId: task._id,
