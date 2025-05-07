@@ -221,7 +221,7 @@ exports.assignTask = async (req, res) => {
     });
 
     await sendEmail(
-      assignedTo,
+      assignee.email,
       "New Task Assigned",
       `You have been assigned a new task: ${task.title}`
     );
@@ -267,6 +267,8 @@ exports.deleteTask = async (req, res) => {
         .status(404)
         .json({ message: "Error deleting task, try again!" });
 
+    const assignee = await User.findById(assignedTo);
+
     await AuditLog.create({
       userId: req.user._id,
       action: "delete_task",
@@ -287,7 +289,7 @@ exports.deleteTask = async (req, res) => {
       });
 
       await sendEmail(
-        assignedTo,
+        assignee.email,
         "New Task Assigned",
         `You have been assigned a new task: ${task.title}`
       );
@@ -345,6 +347,8 @@ exports.createTask = async (req, res) => {
     });
 
     if (assignedTo) {
+      const assignee = await User.findById(assignedTo);
+
       emitToUser(assignedTo, "task:assigned", {
         taskId: task._id,
         title,
@@ -354,7 +358,7 @@ exports.createTask = async (req, res) => {
       });
 
       await sendEmail(
-        assignedTo,
+        assignee.email,
         "New Task Assigned",
         `You have been assigned a new task: ${task.title}`
       );
